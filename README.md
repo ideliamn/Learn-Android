@@ -1,2 +1,2 @@
-# Learn-Android
-learning android
+# Project Belajar
+my own mini android project for learning purposes
