@@ -5,14 +5,16 @@ public class ImageUploadInfo {
     String description;
     String image;
     String search;
+    String date;
     public ImageUploadInfo() {
 
     }
-    public ImageUploadInfo(String title, String description, String image, String search) {
+    public ImageUploadInfo(String title, String description, String image, String search, String date) {
         this.title = title;
         this.description = description;
         this.image = image;
         this.search = search;
+        this.date = date;
     }
 
     public String getTitle() {
@@ -29,5 +31,9 @@ public class ImageUploadInfo {
 
     public String getSearch() {
         return search;
+    }
+
+    public String getDate() {
+        return date;
     }
 }

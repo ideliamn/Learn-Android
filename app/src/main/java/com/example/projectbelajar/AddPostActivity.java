@@ -4,7 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -15,8 +18,10 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,17 +35,19 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Calendar;
 
 public class AddPostActivity extends AppCompatActivity {
 
     EditText mTitleEt, mDescrEt;
+    TextView tv_date;
     ImageView mPostIv;
     Button mUploadBtn;
-
     //folder path for firebase storage
     String mStoragePath = "all_image_uploads/";
     //root database for firebase database
     String mDatabasePath = "data";
+    public String date_string;
     //creating uri
     Uri mFilePathUri;
     //creating storagereference and database reference
@@ -50,6 +57,11 @@ public class AddPostActivity extends AppCompatActivity {
     ProgressDialog mProgressDialog;
     //image request code for choosing image
     int IMAGE_REQUEST_CODE = 5;
+
+    final Calendar c = Calendar.getInstance();
+    int year = c.get(Calendar.YEAR);
+    int month = c.get(Calendar.MONTH);
+    int day = c.get(Calendar.DAY_OF_MONTH);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +75,16 @@ public class AddPostActivity extends AppCompatActivity {
         mDescrEt = findViewById(R.id.pDescrEt);
         mPostIv = findViewById(R.id.pImageIv);
         mUploadBtn = findViewById(R.id.pUploadBtn);
+        tv_date = findViewById(R.id.tv_date);
+
+        Intent intent = getIntent();
+        date_string = intent.getStringExtra("date_string");
+        tv_date.setText(date_string);
+        Toast.makeText(this,date_string, Toast.LENGTH_LONG).show();
+        //Toast.makeText(this,e.getMessage(), Toast.LENGTH_SHORT).show();
+
+        String mPostTitle = mTitleEt.getText().toString();
+        String mPostDescr = mDescrEt.getText().toString();
 
         mPostIv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,7 +133,7 @@ public class AddPostActivity extends AppCompatActivity {
                     mProgressDialog.dismiss();
                     //show toast that image is uploaded
                     Toast.makeText(AddPostActivity.this, "Upload image success", Toast.LENGTH_SHORT).show();
-                    ImageUploadInfo imageUploadInfo = new ImageUploadInfo(mPostTitle, mPostDescr, taskSnapshot.toString(), mPostTitle);
+                    ImageUploadInfo imageUploadInfo = new ImageUploadInfo(mPostTitle, mPostDescr, taskSnapshot.toString(), mPostTitle, date_string);
                     //getting image upload id
                     String imageUploadId = mDatabaseReference.push().getKey();
                     mDatabaseReference.child(imageUploadId).setValue(imageUploadInfo);
@@ -145,6 +167,19 @@ public class AddPostActivity extends AppCompatActivity {
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
+    public void showDatePicker(View view) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datepicker");
+    }
+
+    public void processDatePickerResult(int year, int month, int day) {
+        String month_string = Integer.toString(month + 1);
+        String day_string = Integer.toString(day);
+        String year_string = Integer.toString(year);
+        String date_string = (year_string + "/" + month_string + "/" + day_string);
+        Toast.makeText(this, "Date: " + date_string, Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -162,4 +197,5 @@ public class AddPostActivity extends AppCompatActivity {
             }
         }
     }
+
 }
